@@ -71,7 +71,7 @@ public class FilesController {
 	@GetMapping("/downloadTarFile")
 	public ResponseEntity<Resource> downloadFile(@RequestParam("userId") Integer userId,
 
-			@RequestParam("docType") String docType,HttpServletRequest request) {
+			@RequestParam("docType") String docType,HttpServletRequest request)throws Exception {
 
 		String fileName = fileService.getDocumentName(userId, docType);
 
@@ -85,11 +85,11 @@ public class FilesController {
 
 			} catch (Exception e) {
 
-				e.printStackTrace();
+		
+				logger.error("DownloadTarFileError",e.getMessage());
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 
 			}
-
-			// Try to determine file's content type
 
 			String contentType = null;
 
@@ -99,25 +99,27 @@ public class FilesController {
 
 			} catch (IOException ex) {
 
-				// logger.info("Could not determine file type.");
+				logger.error("DownloadTarFileError",ex.getMessage());
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 
 			}
 
-			// Fallback to the default content type if type could not be determined
 
 			if (contentType == null) {
 
 				contentType = "application/octet-stream";
 
 			}
-
-			return ResponseEntity.ok()
+			
+			ResponseEntity<Resource> r = (ResponseEntity.ok()
 
 					.contentType(MediaType.parseMediaType(contentType))
 
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
 
-					.body(resource);
+					.body(resource));
+
+			return r;
 
 		} else {
 

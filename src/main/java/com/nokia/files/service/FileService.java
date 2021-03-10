@@ -33,7 +33,7 @@ public class FileService {
 	@Autowired
 	FileRepository fileRepo;
 
-	private Path fileStorageLocation;
+	private Path fileStorageLocation=null;
 
 	@Autowired
 
